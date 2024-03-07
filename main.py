@@ -3,6 +3,8 @@ from datetime import time
 from truck import Truck
 from package import Package
 from hashtable import ChainingHashTable
+import tkinter as tk
+from tkinter import ttk
 
 #--------------------------------------- Space-Time Complexity---------------------------------------
 # for the entire code, time complexity is O(n^2) and space complexity is O(n)
@@ -13,7 +15,6 @@ myHash = ChainingHashTable() # myHash will call the hashtable class
 #--------------------------------------- Load Data ---------------------------------------
 
 # create instances of packages using csv data and add them to a list
-# Space-Time Complexities are O(n)
 packageList = list()
 def loadPackageData(filename):
     csv_directory = "CSV/"  # Specify the directory name
@@ -96,9 +97,9 @@ def getDistance(packageA, packageB): # pass in two address ID's
 
 #--------------------------------------- Algorithm ---------------------------------------
 
-# use the nearest neighbor algorithm to sort the trucks packages in an improved order to be delivered
-# time complexity is O(n^2) where n is the number of packages in the truck
-# space complexity is O(n) where n is the number of packages in the truck
+    # use the nearest neighbor algorithm to sort the trucks packages in an improved order to be delivered
+    # time complexity is O(n^2) where n is the number of packages in the truck
+    # space complexity is O(n) where n is the number of packages in the truck
 def nearestNeighbor(truck):
     packageNNRoute = []
     currentRoute = []
