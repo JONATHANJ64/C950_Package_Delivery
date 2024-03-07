@@ -1,8 +1,8 @@
 import csv
 from datetime import time
-from Truck import Truck
-from Package import Package
-from HashTable import ChainingHashTable
+from truck import Truck
+from package import Package
+from hashtable import ChainingHashTable
 
 #--------------------------------------- Space-Time Complexity---------------------------------------
 # for the entire code, time complexity is O(n^2) and space complexity is O(n)
@@ -16,44 +16,59 @@ myHash = ChainingHashTable() # myHash will call the hashtable class
 # Space-Time Complexities are O(n)
 packageList = list()
 def loadPackageData(filename):
-    with open(filename) as packageInfo: # open the csv file and assign it to a variable
-        packageData = csv.reader(packageInfo, delimiter=',') # read the csv file
-        next(packageData) # go to the next line of the csv file
-        for package in packageData: # add various parameters to a package object
-            pPackageID = int(package[0])
-            pAddress = package[1]
-            pCity = package[2]
-            pState = package[3]
-            pZip = package[4]
-            pDeliveryDeadline = package[5]
-            pMass = package[6]
-            pNotes = package[7]
-            pStatus = "at the hub"
-            pDeliveryTime = None
-            # instantiate a new package object
-            packageData = Package(pPackageID, pAddress, pCity, pState, pZip, pDeliveryDeadline, pMass, pNotes, pStatus, pDeliveryTime)
-            myHash.insert(pPackageID, packageData) # insert the package into the hashtable
-            packageList.append(package) # add the package into a list
+    csv_directory = "CSV/"  # Specify the directory name
+    file_path = csv_directory + filename  # Construct the full file path
+    try:
+        with open(file_path) as packageInfo:  # Open the CSV file using the full file path
+            packageData = csv.reader(packageInfo, delimiter=',')
+            next(packageData)
+            for package in packageData:
+                pPackageID = int(package[0])
+                pAddress = package[1]
+                pCity = package[2]
+                pState = package[3]
+                pZip = package[4]
+                pDeliveryDeadline = package[5]
+                pMass = package[6]
+                pNotes = package[7]
+                pStatus = "at the hub"
+                pDeliveryTime = None
+                packageData = Package(pPackageID, pAddress, pCity, pState, pZip, pDeliveryDeadline, pMass, pNotes, pStatus, pDeliveryTime)
+                myHash.insert(pPackageID, packageData)
+                packageList.append(package)
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found in directory '{csv_directory}'.")
 
 # load the distances from csv data and add them to a list
 # Space-Time Complexities are O(n)
 distanceList = list()
 def loadDistanceData(filename):
-    with open(filename) as distanceInfo:
-        distanceData = csv.reader(distanceInfo, delimiter=',')
-        next(distanceData)
-        for distance in distanceData: # for each distance
-            distanceList.append(distance) # add the distance to the list
+    csv_directory = "CSV/"
+    file_path = csv_directory + filename
+    try:
+        with open(file_path) as distanceInfo:
+            distanceData = csv.reader(distanceInfo, delimiter=',')
+            next(distanceData)
+            for distance in distanceData:
+                distanceList.append(distance)
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found in directory '{csv_directory}'.")
 
 # load addresses from csv data and add them to a list
 # Space-Time Complexities are O(n)
 addressList = list()
 def loadAddressData(filename):
-    with open(filename) as distanceInfo:
-        addressData = csv.reader(distanceInfo, delimiter=',')
-        next(addressData)
-        for address in addressData: # for each address
-            addressList.append(address) # add the address to the list
+    csv_directory = "CSV/"
+    file_path = csv_directory + filename
+    try:
+        with open(file_path) as addressInfo:
+            addressData = csv.reader(addressInfo, delimiter=',')
+            next(addressData)
+            for address in addressData:
+                addressList.append(address)
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found in directory '{csv_directory}'.")
+
 
 # load in the csv files
 loadPackageData('Package.csv')
