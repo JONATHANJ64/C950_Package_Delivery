@@ -12,16 +12,22 @@ class Package: # package class
         self.Status = Status # the current status of the package
         self.DeliveryTime = DeliveryTime # the time when the package was delivered
 
-    # Space-Time Complexities are O(1)
-    def updateStatus(self, newStatus): # update the status of a package
+    # Space-Time Complexities is O(1)
+    # updates the status
+
+    def updateStatus(self, newStatus):
         self.Status = newStatus
 
-    # Space-Time Complexities are O(1)
-    def updateDeliveryTime(self, newDeliveryTime): # update the delivery time of a package
+    # Space-Time Complexities is O(1)
+    # updates the delivery
+
+    def updateDeliveryTime(self, newDeliveryTime):
         self.DeliveryTime = newDeliveryTime
 
     # Space-Time Complexities are O(1)
-    def updateAddress(self, newAddress): # update the address of a package
+    # updates the address
+
+    def updateAddress(self, newAddress):
         self.Address = newAddress
 
     def __str__(self):

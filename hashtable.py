@@ -8,7 +8,7 @@ class ChainingHashTable:
         bucket_list = self.table[bucket]
         for kv in bucket_list:
             if kv[0] == key:
-                kv[1] = item  # Update value if key already exists
+                kv[1] = item
                 return True
         bucket_list.append([key, item])
         return True
