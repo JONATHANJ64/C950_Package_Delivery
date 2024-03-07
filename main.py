@@ -3,8 +3,6 @@ from datetime import time
 from truck import Truck
 from package import Package
 from hashtable import ChainingHashTable
-import tkinter as tk
-from tkinter import ttk
 
 #--------------------------------------- Space-Time Complexity---------------------------------------
 # for the entire code, time complexity is O(n^2) and space complexity is O(n)
@@ -322,11 +320,11 @@ def option2(): # get a single package status with a time
             print("Invalid input. Please enter a number.")
     while timeInput == "":
         try: # get the time input from the user
-            userTimeInputString = input("Enter a time in the format 'hh:mm': ") # get user input
+            userTimeInputString = input("Enter a time in the format 'hh:mm' ( must be military standard time ): ") # get user input
             hours, minutes = map(int, userTimeInputString.split(":"))  # split the string into hours and minutes
             timeInput = time(hours, minutes)  # create a new time with the hours and minutes values
         except:
-            print("Invalid input. Please enter a valid time in the format 'hh:mm'.")
+            print("Invalid input. Please enter a valid time in the format 'hh:mm' and remember that it needs to be in military standard time.")
 
     getSinglePackageStatusWithTime(userPackageInput, timeInput) # call the function to get a package status
 
@@ -335,16 +333,18 @@ def option3(): # get all package status with a time
     timeInput = ""
     while timeInput == "":
         try:
-            userTimeInputString = input("Enter a time in the format 'hh:mm': ") # get user input
+            userTimeInputString = input("Enter a time in the format 'hh:mm'( must be military standard time ): ") # get user input
             hours, minutes = map(int, userTimeInputString.split(":"))  # split the string into hours and minutes
             timeInput = time(hours, minutes)  # create a new time with the hours and minutes values
         except:
-            print("Invalid input. Please enter a valid time in the format 'hh:mm'.")
+            print("Invalid input. Please enter a valid time in the format 'hh:mm' and remember that it needs to be in military standard time.")
 
     getAllPackageStatusWithTime(timeInput) # call the function to get all the packages statuses
 
 def option4(): # exit the program
     print("----------------------------------------------")
-    print("You have exited the program. Goodbye!")
+    print("You have chosen to exit the program\n")
+    print("---See you soon---")
+
 
 menu() # call the menu function which acts as the command line interface
