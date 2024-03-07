@@ -1,11 +1,9 @@
-# Initialize an empty hash table with optional initial capacity.
 class ChainingHashTable:
     def __init__(self, initial_capacity=40):
         self.table = [[] for _ in range(initial_capacity)]
 
-    # Insert an item into the hash table.
-
     def insert(self, key, item):
+        # Insert an item into the hash table.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
         for kv in bucket_list:
@@ -15,8 +13,8 @@ class ChainingHashTable:
         bucket_list.append([key, item])
         return True
 
-    # Lookup an item in the hash table.
     def search(self, key):
+        # Lookup an item in the hash table.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
         for kv in bucket_list:
@@ -24,13 +22,13 @@ class ChainingHashTable:
                 return kv[1]
         return None
 
-    # Remove an item from the hash table.
     def remove(self, key):
+        # Remove an item from the hash table.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
-        for kv in bucket_list:
+        for i, kv in enumerate(bucket_list):
             if kv[0] == key:
-                bucket_list.remove(kv)
+                del bucket_list[i]  # Remove the key-value pair
                 return True
         return False  # Key not found
 
