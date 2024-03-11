@@ -1,14 +1,22 @@
-import csv
+# Jonathan Johnson
+# Student ID: 011009146
+# 03/1o/24
+
 from datetime import time
 from truck import Truck
 from package import Package
 from hashtable import ChainingHashTable
+from colorama import Fore, Style
+import csv
 
-#--------------------------------------- Space-Time Complexity---------------------------------------
-# for the entire code, time complexity is O(n^2) and space complexity is O(n)
-#-----------------------------------------------------------------------------------------
+# Importing a library for colored text
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    print("Colorama library not found. Please install it to enable colored output.")
 
-myHash = ChainingHashTable() # myHash will call the hashtable class
+myHash = ChainingHashTable()
 
 #--------------------------------------- Load Data ---------------------------------------
 
@@ -39,7 +47,6 @@ def loadPackageData(filename):
         print(f"Error: File '{filename}' not found in directory '{csv_directory}'.")
 
 # load the distances from csv data and add them to a list
-# Space-Time Complexities are O(n)
 distanceList = list()
 def loadDistanceData(filename):
     csv_directory = "CSV/"
@@ -54,7 +61,6 @@ def loadDistanceData(filename):
         print(f"Error: File '{filename}' not found in directory '{csv_directory}'.")
 
 # load addresses from csv data and add them to a list
-# Space-Time Complexities are O(n)
 addressList = list()
 def loadAddressData(filename):
     csv_directory = "CSV/"
@@ -76,72 +82,59 @@ loadAddressData('Address.csv')
 
 #--------------------------------------- Various Methods ---------------------------------------
 
-# input a packageID and return its associated delivery addressID
-# time complexity is O(n) and space complexity is O(1)
 def getAddressIDFromPackageID(packageID):
     addressReturned = None
-    # for each package in the packageList
-    for index, package in enumerate(packageList):  # enumerate makes the packageList iterable
-        if packageID == index + 1: # if the packageID is found in the packageList
-            addressReturned = package[1] # return its associated address name
-    for address in addressList: # for each address in the addressList
-        if addressReturned == address[2]: # if the packages address is found in the address list
-            return int(address[0]) # return its associated addressID
+    for index, package in enumerate(packageList):
+        if packageID == index + 1:
+            addressReturned = package[1]
+    for address in addressList:
+        if addressReturned == address[2]:
+            return int(address[0])
 
-# get the distance between two packages delivery Addresses
-# Space-Time Complexities are O(1)
-def getDistance(packageA, packageB): # pass in two address ID's
-    return float(distanceList[packageA][packageB]) # return the distance as a float
+def getDistance(packageA, packageB):
+    return float(distanceList[packageA][packageB])
 
 #--------------------------------------- Algorithm ---------------------------------------
 
-    # use the nearest neighbor algorithm to sort the trucks packages in an improved order to be delivered
-    # time complexity is O(n^2) where n is the number of packages in the truck
-    # space complexity is O(n) where n is the number of packages in the truck
 def nearestNeighbor(truck):
     packageNNRoute = []
     currentRoute = []
-    for package in truck.packages: # add packages to the current Route (to be improved)
-        currentRoute.append(package.PackageID) # add the packages to the route list
+    for package in truck.packages:
+        currentRoute.append(package.PackageID)
 
-    nearestInitialDistance = float('inf') # set the nearest distance initially to infinite
-    nearestPackage = None # set the nearest package delivery address initially to none
-    # get the initial closest package delivery address from the hub using the NN algorithm
-    for package in currentRoute: # find distances for each package delivery address to the hub
-        distance = getDistance(0, getAddressIDFromPackageID(package)) # get the distance
-        if distance < nearestInitialDistance: # if the distance is the closest to the hub so far
-            nearestInitialDistance = distance # overwrite the nearest distance
-            nearestPackage = package # overwrite the package with the nearest delivery address to the hub
-    packageNNRoute.append(nearestPackage) # add a package to the NN route
-    currentRoute.remove(nearestPackage) # remove a package from the current route
+    nearestInitialDistance = float('inf')
+    nearestPackage = None
+    for package in currentRoute:
+        distance = getDistance(0, getAddressIDFromPackageID(package))
+        if distance < nearestInitialDistance:
+            nearestInitialDistance = distance
+            nearestPackage = package
+    packageNNRoute.append(nearestPackage)
+    currentRoute.remove(nearestPackage)
 
-    while len(currentRoute) > 0:  # while currentRoute is not empty
-        nearestDistance = float('inf')  # set the nearest distance initially to infinite
-        # after the initial closest package, compile a route list using the NN algorithm
+    while len(currentRoute) > 0:
+        nearestDistance = float('inf')
         for package in currentRoute:
-            if package == 9: # packageID 9 is a special case that the address changes
-                Package.updateAddress(myHash.search(9), "410 S State St") # wrong address changed for package 9
-            # get the package distance between the package and the last package in the final route list
+            if package == 9:
+                Package.updateAddress(myHash.search(9), "410 S State St")
             distance = getDistance(getAddressIDFromPackageID(packageNNRoute[-1]), getAddressIDFromPackageID(package))
             if distance < nearestDistance:
                 nearestDistance = distance
                 nearestPackage = package
         packageNNRoute.append(nearestPackage)
         currentRoute.remove(nearestPackage)
-    return packageNNRoute # return the package route determined by the algorithm
+    return packageNNRoute
 
 #--------------------------------------- Trucks ---------------------------------------
 
-# instantiate two trucks from the Truck class and load them with packages
-truck1 = Truck(1, 0, 0, set()) # id 1, location starting 0 (WGU Hub), no mileage yet, no associated packages yet
+truck1 = Truck(1, 0, 0, set())
 truck2 = Truck(2, 0, 0, set())
 truck3 = Truck(3, 0, 0, set())
 
-# load the trucks manually
-packageTruck1_ids = [14, 15, 16, 34, 20, 21, 13, 39, 4, 40, 19, 27, 35, 12, 23, 11] # add package IDs to a list
-for package_id in packageTruck1_ids: # for each packageID in the list
-    truck1.add(myHash.search(package_id)) # add the package to truck1
-truck1nnRoute = nearestNeighbor(truck1) # compile an optimal delivery route for truck 1 using the nearest neighbor algorithm
+packageTruck1_ids = [14, 15, 16, 34, 20, 21, 13, 39, 4, 40, 19, 27, 35, 12, 23, 11]
+for package_id in packageTruck1_ids:
+    truck1.add(myHash.search(package_id))
+truck1nnRoute = nearestNeighbor(truck1)
 packageTruck2_ids = [6, 31, 32, 25, 26, 3, 18, 36, 38, 28, 9, 10, 2, 33, 17, 22]
 for package_id in packageTruck2_ids:
     truck2.add(myHash.search(package_id))
@@ -153,29 +146,26 @@ truck3nnRoute = nearestNeighbor(truck3)
 
 #--------------------------------------- Menu Methods ---------------------------------------
 
-# return a list of miles travelled for a truck after each delivery, and an equivalent delivery time list
-# Space-Time Complexities are O(n)
 def getTimeAndMileage(truckNNRoute):
-    #mileage
     totalMileage = 0
     truckLocation = 0
     mileageList = []
-    for i in truckNNRoute: # for each package in the truck route, add its delivery mileage to a list
+    for i in truckNNRoute:
         totalMileage = totalMileage + getDistance(truckLocation, getAddressIDFromPackageID(i))
         mileageList.append(totalMileage)
         truckLocation = getAddressIDFromPackageID(i)
-    #time
-    if truckNNRoute == truck2nnRoute: # for truck 2
-        startTime = (9 * 60) + 15 # 9:15am start time in minutes
-    else: # for trucks 1 and 3
-        startTime = 8 * 60  # 8:00am start time in minutes
+
+    if truckNNRoute == truck2nnRoute:
+        startTime = (9 * 60) + 15
+    else:
+        startTime = 8 * 60
     lastTravelDistance = 0
     travelTimeMinutes = []
     deliveryTimeList = []
-    for i in mileageList: # use the mileage List to create another list of equivalent travel minutes per delivery
-        travelTimeMinutes.append(round((i - lastTravelDistance) / 0.3)) # 0.3 is the avg miles per minutes
+    for i in mileageList:
+        travelTimeMinutes.append(round((i - lastTravelDistance) / 0.3))
         lastTravelDistance = i
-    for i in travelTimeMinutes: # add delivery times to a list for the truck route
+    for i in travelTimeMinutes:
         startTime += i
         hours, minutes = divmod(startTime, 60)
         deliveryTimeList.append(f"{hours:02d}:{minutes:02d}")
@@ -185,22 +175,26 @@ TimeMileageListsTruck1 = getTimeAndMileage(truck1nnRoute)
 TimeMileageListsTruck2 = getTimeAndMileage(truck2nnRoute)
 TimeMileageListsTruck3 = getTimeAndMileage(truck3nnRoute)
 
-# calculate travel miles by the trucks
-# Space-Time Complexities are O(1)
 def totalMileageCalculation():
-    truck3ReturnTrip = getDistance(12, 0) # truck 3 will need to return to the hub from address ID 12
-    # total miles travelled by all three trucks including trucks 3 return trip back to the hub
+    truck3ReturnTrip = getDistance(12, 0)
     totalMileage = TimeMileageListsTruck1[0][-1] + TimeMileageListsTruck2[0][-1] + truck3ReturnTrip + TimeMileageListsTruck3[0][-1]
-    truck1Mileage = TimeMileageListsTruck1[0][-1] # total miles travelled by truck 1
+    truck1Mileage = TimeMileageListsTruck1[0][-1]
     truck2Mileage = TimeMileageListsTruck2[0][-1]
     truck3Mileage = TimeMileageListsTruck3[0][-1] + truck3ReturnTrip
     return totalMileage, truck1Mileage, truck2Mileage, truck3Mileage
 
-# add delivery times to each package in a particular truck route
-# Space-Time Complexities are O(n)
+# Define the selectPackagesBetweenTime function
+def selectPackagesBetweenTime(startTime, endTime):
+    selected_packages = []
+    for packageID in range(1, 41):
+        packageDeliveryTime = time.fromisoformat(myHash.search(packageID).DeliveryTime)
+        if startTime <= packageDeliveryTime <= endTime:
+            selected_packages.append(myHash.search(packageID))
+    return selected_packages
+
 def addDeliveryTimesToPackages(truckNNRoute, TimeMileageList):
     timeNum = 0
-    for package_id in truckNNRoute:  # put the delivery times into the truck packages
+    for package_id in truckNNRoute:
         Package.updateDeliveryTime(myHash.search(package_id), TimeMileageList[1][timeNum])
         timeNum = timeNum + 1
 
@@ -208,14 +202,11 @@ addDeliveryTimesToPackages(truck1nnRoute, TimeMileageListsTruck1)
 addDeliveryTimesToPackages(truck2nnRoute, TimeMileageListsTruck2)
 addDeliveryTimesToPackages(truck3nnRoute, TimeMileageListsTruck3)
 
-# user pass in a single packageID and time and see that packages status at that time
-# Space-Time Complexities are O(1)
 def getSinglePackageStatusWithTime(userPackageInput, userTimeInput):
     packageDeliveryTime = time.fromisoformat(myHash.search(userPackageInput).DeliveryTime)
-    truck1and3DepartTime = time(8, 0) # time truck 1 and 3 will depart the hub
-    truck2DepartTime = time(9, 15) # time truck 2 will depart the hub
+    truck1and3DepartTime = time(8, 0)
+    truck2DepartTime = time(9, 15)
 
-    # change the package status depending on which trucks its associated with and the time the user passed in
     if userPackageInput in packageTruck1_ids or userPackageInput in packageTruck3_ids:
         if userTimeInput < truck1and3DepartTime:
             Package.updateStatus(myHash.search(userPackageInput), "at hub")
@@ -233,25 +224,21 @@ def getSinglePackageStatusWithTime(userPackageInput, userTimeInput):
             else:
                 Package.updateStatus(myHash.search(userPackageInput), "delivered")
 
-    # if the package does not have a delivered status, display the delivery time a N/A
     if myHash.search(userPackageInput).Status != "delivered":
         Package.updateDeliveryTime(myHash.search(userPackageInput), "N/A")
 
     print("----------------------------------------------")
     print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
-    print(myHash.search(userPackageInput)) # print the package
+    print(myHash.search(userPackageInput))
 
-# user pass in a time and see all the package statuses at that time
-# Space-Time Complexities are O(n)
 def getAllPackageStatusWithTime(userTimeInput):
     print("----------------------------------------------")
     print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
-    truck1and3DepartTime = time(8, 0) # time truck 1 and 3 will depart the hub
-    truck2DepartTime = time(9, 15) # time truck 2 will depart the hub
+    truck1and3DepartTime = time(8, 0)
+    truck2DepartTime = time(9, 15)
 
-    for packageID in range(1, 41): # for all 40 packages
+    for packageID in range(1, 41):
         packageDeliveryTime = time.fromisoformat(myHash.search(packageID).DeliveryTime)
-        # change the package status depending on which trucks its associated with and the time the user passed in
         if packageID in packageTruck1_ids or packageID in packageTruck3_ids:
             if userTimeInput < truck1and3DepartTime:
                 Package.updateStatus(myHash.search(packageID), "at hub")
@@ -269,82 +256,109 @@ def getAllPackageStatusWithTime(userTimeInput):
                 else:
                     Package.updateStatus(myHash.search(packageID), "delivered")
 
-        # if the package does not have a delivered status, display the delivery time a N/A
         if myHash.search(packageID).Status != "delivered":
             Package.updateDeliveryTime(myHash.search(packageID), "N/A")
 
-        print(myHash.search(packageID)) #  print the package
-
+        print(myHash.search(packageID))
 #--------------------------------------- Menu ---------------------------------------
 
-def menu(): # command line interface which the user can interact with
+def menu():
     print("----------------------------------------------")
-    print("Main Menu, please type an option 1, 2, 3, or 4")
+    print("Hello & Welcome to the CLI terminal for WGU C950 Task 2 of Data Structures Data Algorithms")
     print("----------------------------------------------")
-    print("1. Print All Package Status and Total Mileage")
+    print("Main Menu, please type an option 1, 2, 3, 4, or 5")
+    print("----------------------------------------------")
+    print(Fore.GREEN + "1. Print All Package Status and Total Mileage")
     print("2. Get a Single Package Status with a Time")
-    print("3. Get All Package Status with a Time")
-    print("4. Exit the Program")
-    menuOptionSelect = input("Selection: ")  # get user input to select a menu option
-    if menuOptionSelect == "1": # if menu option 1 is selected
-        option1() # run the method for option 1
+    print("3. Get All Package Status Within a Start & End Time")
+    print("4. View All 3 Trucks Status and Mileage")
+    print("5. Exit the Program" + Fore.RESET)
+    menuOptionSelect = input(Fore.GREEN + "Selection(1-5): " + Fore.RESET)
+    if menuOptionSelect == "1":
+        option1()
     elif menuOptionSelect == "2":
         option2()
     elif menuOptionSelect == "3":
         option3()
-    else:
+    elif menuOptionSelect == "4":
         option4()
+    else:
+        option5()
 
-def option1(): # print all package status and total mileage
+def option1():
+    print("----------------------------------------------")
+    print("Printing All Package Status and Total Mileage...")
+    print("----------------------------------------------")
+    getAllPackageStatusWithTime(time(12, 0))
+    totalMileage = totalMileageCalculation()[0]
+    print("----------------------------------------------")
+    print(f"Total mileage traveled: {totalMileage} miles")
+    print("----------------------------------------------")
+    return_to_menu()
+
+def option2():
+    print("----------------------------------------------")
+    try:
+        userPackageInput = int(input("Enter Package ID: "))
+        userTimeInput = input("Enter Time (HH:MM): ")
+        if ':' not in userTimeInput:
+            raise ValueError("Invalid time format. Please enter the time in HH:MM format.")
+        userTime = time.fromisoformat(userTimeInput + ':00')
+        getSinglePackageStatusWithTime(userPackageInput, userTime)
+    except ValueError as e:
+        print(str(e))
+    print("----------------------------------------------")
+    return_to_menu()
+
+def option3():
+    print("----------------------------------------------")
+    try:
+        userStartTimeInput = input("Enter Start Time (HH:MM): ")
+        userEndTimeInput = input("Enter End Time (HH:MM): ")
+
+        if ':' not in userStartTimeInput or ':' not in userEndTimeInput:
+            raise ValueError("Invalid time format. Please enter the time in HH:MM format.")
+
+        startTime = time.fromisoformat(userStartTimeInput + ':00')
+        endTime = time.fromisoformat(userEndTimeInput + ':00')
+
+        if startTime >= endTime:
+            raise ValueError("End time must be later than start time.")
+
+        selected_packages = selectPackagesBetweenTime(startTime, endTime)
+
+        print("----------------------------------------------")
+        print("Selected packages between", startTime.strftime('%H:%M'), "and", endTime.strftime('%H:%M') + ":")
+        print("----------------------------------------------")
+        print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
+        for package in selected_packages:
+            print(package)
+    except ValueError as e:
+        print(str(e))
+    print("----------------------------------------------")
+    return_to_menu()
+def option4():
     print("----------------------------------------------")
     print("Truck 1 travelled " + str(round(totalMileageCalculation()[1], 1)) + " miles.")
     print("Truck 2 travelled " + str(round(totalMileageCalculation()[2], 1)) + " miles.")
     print("Truck 3 travelled " + str(round(totalMileageCalculation()[3], 1)) + " miles.")
     print("The total distance travelled to deliver all the packages is " + str(round(totalMileageCalculation()[0], 1)) + " miles.")
     print("----------------------------------------------")
-    print("Here is a list of all the packages:")
-    print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
-    for packageID in range(1, 41): # for each package set the status to delivered and print it
-        Package.updateStatus(myHash.search(packageID), "delivered")
-        print(myHash.search(packageID))
+    return_to_menu()
 
-def option2(): # get a single package status with a time
-    print("----------------------------------------------")
-    userPackageInput = ""
-    timeInput = ""
-    while userPackageInput == "":
-        try: # get the packageID input from the user
-            userPackageInputString = input("Enter a package ID: ")
-            userPackageInput = int(userPackageInputString)
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-    while timeInput == "":
-        try: # get the time input from the user
-            userTimeInputString = input("Enter a time in the format 'hh:mm' ( must be military standard time ): ") # get user input
-            hours, minutes = map(int, userTimeInputString.split(":"))  # split the string into hours and minutes
-            timeInput = time(hours, minutes)  # create a new time with the hours and minutes values
-        except:
-            print("Invalid input. Please enter a valid time in the format 'hh:mm' and remember that it needs to be in military standard time.")
+def option5():
+    print("Exiting the Program...")
+    exit()
 
-    getSinglePackageStatusWithTime(userPackageInput, timeInput) # call the function to get a package status
+def return_to_menu():
+    print("Do you want to return to the main menu? (Y/N)")
+    choice = input().strip().upper()
+    if choice == 'Y':
+        menu()
+    elif choice == 'N':
+        option5()
+    else:
+        print("Invalid choice. Please enter Y or N.")
+        return_to_menu()
 
-def option3(): # get all package status with a time
-    print("----------------------------------------------")
-    timeInput = ""
-    while timeInput == "":
-        try:
-            userTimeInputString = input("Enter a time in the format 'hh:mm'( must be military standard time ): ") # get user input
-            hours, minutes = map(int, userTimeInputString.split(":"))  # split the string into hours and minutes
-            timeInput = time(hours, minutes)  # create a new time with the hours and minutes values
-        except:
-            print("Invalid input. Please enter a valid time in the format 'hh:mm' and remember that it needs to be in military standard time.")
-
-    getAllPackageStatusWithTime(timeInput) # call the function to get all the packages statuses
-
-def option4(): # exit the program
-    print("----------------------------------------------")
-    print("You have chosen to exit the program\n")
-    print("---See you soon---")
-
-
-menu() # call the menu function which acts as the command line interface
+menu()

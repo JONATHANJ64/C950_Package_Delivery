@@ -33,10 +33,12 @@ class ChainingHashTable:
         return False  # Key not found
 
 # Example usage:
-hash_table = ChainingHashTable()
-hash_table.insert("package_id_1", {"delivery_address": "123 Main St", "delivery_deadline": "2024-03-10",
-                                   "delivery_city": "Example City", "delivery_zip_code": "12345",
-                                   "package_weight": 5.2, "delivery_status": "at the hub"})
-print(hash_table.search("package_id_1"))
-hash_table.remove("package_id_1")
-print(hash_table.search("package_id_1"))
+# hash_table = ChainingHashTable()
+
+# hash_table.insert("package_id_1", {"delivery_address": "123 Main St", "delivery_deadline": "2024-03-10",
+#  "delivery_city": "Example City", "delivery_zip_code": "12345",
+# "package_weight": 5.2, "delivery_status": "at the hub"})
+
+# print(hash_table.search("package_id_1"))
+# hash_table.remove("package_id_1")
+# print(hash_table.search("package_id_1"))
