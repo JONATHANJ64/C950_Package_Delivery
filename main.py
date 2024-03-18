@@ -355,6 +355,7 @@ def getAllPackageStatusWithTime(userTimeInput):
     print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
     truck1and3DepartTime = time(8, 0)
     truck2DepartTime = time(9, 15)
+    Package.updateAddress(myHash.search(9), "410 S State St")
 
     for packageID in range(1, 41):
         packageDeliveryTime = time.fromisoformat(myHash.search(packageID).DeliveryTime)
