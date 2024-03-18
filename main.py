@@ -1,24 +1,16 @@
 # Jonathan Johnson
 # Student ID: 011009146
-# 03/1o/24
+# 03/18/24
 
 from datetime import time
 from truck import Truck
 from package import Package
 from hashtable import ChainingHashTable
-from colorama import Fore, Style
 import csv
-
-# Importing a library for colored text
-try:
-    import colorama
-    colorama.init()
-except ImportError:
-    print("Colorama library not found. Please install it to enable colored output.")
 
 myHash = ChainingHashTable()
 
-#--------------------------------------- Load Data ---------------------------------------
+# --------------------------------------- Load Data ---------------------------------------
 
 # create instances of packages using csv data and add them to a list
 packageList = list()
@@ -80,7 +72,7 @@ loadPackageData('Package.csv')
 loadDistanceData('Distance.csv')
 loadAddressData('Address.csv')
 
-#--------------------------------------- Various Methods ---------------------------------------
+# --------------------------------------- Various Methods ---------------------------------------
 
 def getAddressIDFromPackageID(packageID):
     addressReturned = None
@@ -94,13 +86,14 @@ def getAddressIDFromPackageID(packageID):
 def getDistance(packageA, packageB):
     return float(distanceList[packageA][packageB])
 
-#--------------------------------------- Algorithm ---------------------------------------
+# --------------------------------------- Algorithm ---------------------------------------
 
 def nearestNeighbor(truck):
     packageNNRoute = []
     currentRoute = []
     for package in truck.packages:
         currentRoute.append(package.PackageID)
+
 
     nearestInitialDistance = float('inf')
     nearestPackage = None
@@ -112,11 +105,10 @@ def nearestNeighbor(truck):
     packageNNRoute.append(nearestPackage)
     currentRoute.remove(nearestPackage)
 
+
     while len(currentRoute) > 0:
         nearestDistance = float('inf')
         for package in currentRoute:
-            if package == 9:
-                Package.updateAddress(myHash.search(9), "410 S State St")
             distance = getDistance(getAddressIDFromPackageID(packageNNRoute[-1]), getAddressIDFromPackageID(package))
             if distance < nearestDistance:
                 nearestDistance = distance
@@ -125,7 +117,8 @@ def nearestNeighbor(truck):
         currentRoute.remove(nearestPackage)
     return packageNNRoute
 
-#--------------------------------------- Trucks ---------------------------------------
+
+# --------------------------------------- Trucks ---------------------------------------
 
 truck1 = Truck(1, 0, 0, set())
 truck2 = Truck(2, 0, 0, set())
@@ -144,7 +137,7 @@ for package_id in packageTruck3_ids:
     truck3.add(myHash.search(package_id))
 truck3nnRoute = nearestNeighbor(truck3)
 
-#--------------------------------------- Menu Methods ---------------------------------------
+# --------------------------------------- Menu Methods ---------------------------------------
 
 def getTimeAndMileage(truckNNRoute):
     totalMileage = 0
@@ -260,6 +253,132 @@ def getAllPackageStatusWithTime(userTimeInput):
             Package.updateDeliveryTime(myHash.search(packageID), "N/A")
 
         print(myHash.search(packageID))
+# --------------------------------------- Menu Methods ---------------------------------------
+
+def getTimeAndMileage(truckNNRoute):
+    totalMileage = 0
+    truckLocation = 0
+    mileageList = []
+    for i in truckNNRoute:
+        totalMileage = totalMileage + getDistance(truckLocation, getAddressIDFromPackageID(i))
+        mileageList.append(totalMileage)
+        truckLocation = getAddressIDFromPackageID(i)
+
+    if truckNNRoute == truck2nnRoute:
+        startTime = (9 * 60) + 15
+    else:
+        startTime = 8 * 60
+    lastTravelDistance = 0
+    travelTimeMinutes = []
+    deliveryTimeList = []
+    for i in mileageList:
+        travelTimeMinutes.append(round((i - lastTravelDistance) / 0.3))
+        lastTravelDistance = i
+    for i in travelTimeMinutes:
+        startTime += i
+        hours, minutes = divmod(startTime, 60)
+        deliveryTimeList.append(f"{hours:02d}:{minutes:02d}")
+    return mileageList, deliveryTimeList
+
+TimeMileageListsTruck1 = getTimeAndMileage(truck1nnRoute)
+TimeMileageListsTruck2 = getTimeAndMileage(truck2nnRoute)
+TimeMileageListsTruck3 = getTimeAndMileage(truck3nnRoute)
+
+def totalMileageCalculation():
+    truck3ReturnTrip = getDistance(12, 0)
+    totalMileage = TimeMileageListsTruck1[0][-1] + TimeMileageListsTruck2[0][-1] + truck3ReturnTrip + TimeMileageListsTruck3[0][-1]
+    truck1Mileage = TimeMileageListsTruck1[0][-1]
+    truck2Mileage = TimeMileageListsTruck2[0][-1]
+    truck3Mileage = TimeMileageListsTruck3[0][-1] + truck3ReturnTrip
+    return totalMileage, truck1Mileage, truck2Mileage, truck3Mileage
+
+# Define the selectPackagesBetweenTime function
+def selectPackagesBetweenTime(startTime, endTime):
+    selected_packages = []
+    for packageID in range(1, 41):
+        packageDeliveryTime = time.fromisoformat(myHash.search(packageID).DeliveryTime)
+        if startTime <= packageDeliveryTime <= endTime:
+            selected_packages.append(myHash.search(packageID))
+    return selected_packages
+
+def addDeliveryTimesToPackages(truckNNRoute, TimeMileageList):
+    timeNum = 0
+    for package_id in truckNNRoute:
+        Package.updateDeliveryTime(myHash.search(package_id), TimeMileageList[1][timeNum])
+        timeNum = timeNum + 1
+
+addDeliveryTimesToPackages(truck1nnRoute, TimeMileageListsTruck1)
+addDeliveryTimesToPackages(truck2nnRoute, TimeMileageListsTruck2)
+addDeliveryTimesToPackages(truck3nnRoute, TimeMileageListsTruck3)
+
+def getSinglePackageStatusWithTime(userPackageInput, userTimeInput):
+    packageDeliveryTime = time.fromisoformat(myHash.search(userPackageInput).DeliveryTime)
+    truck1and3DepartTime = time(8, 0)  # time truck 1 and 3 will depart the hub
+    truck2DepartTime = time(9, 15)  # time truck 2 will depart the hub
+
+
+    # Update nearest neighbor logic for package 9
+    if userPackageInput == 9 and userTimeInput >= time(10, 20):
+        Package.updateAddress(myHash.search(9), "410 S State St")
+
+
+    # Change the package status depending on which trucks it's associated with and the time the user passed in
+    if userPackageInput in packageTruck1_ids or userPackageInput in packageTruck3_ids:
+        if userTimeInput < truck1and3DepartTime:
+            Package.updateStatus(myHash.search(userPackageInput), "at hub")
+        else:
+            if packageDeliveryTime > userTimeInput:
+                Package.updateStatus(myHash.search(userPackageInput), "en route")
+            else:
+                Package.updateStatus(myHash.search(userPackageInput), "delivered")
+    else:
+        if userTimeInput < truck2DepartTime:
+            Package.updateStatus(myHash.search(userPackageInput), "at hub")
+        else:
+            if packageDeliveryTime > userTimeInput:
+                Package.updateStatus(myHash.search(userPackageInput), "en route")
+            else:
+                Package.updateStatus(myHash.search(userPackageInput), "delivered")
+
+
+    # If the package does not have a delivered status, display the delivery time as N/A
+    if myHash.search(userPackageInput).Status != "delivered":
+        Package.updateDeliveryTime(myHash.search(userPackageInput), "N/A")
+
+
+    print("----------------------------------------------")
+    print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
+    print(myHash.search(userPackageInput))  # print the package
+
+def getAllPackageStatusWithTime(userTimeInput):
+    print("----------------------------------------------")
+    print("PackageID, Address, City, State, Zip, Delivery Deadline, Mass KILO, PageSpecial Notes, Status, DeliveryTime")
+    truck1and3DepartTime = time(8, 0)
+    truck2DepartTime = time(9, 15)
+
+    for packageID in range(1, 41):
+        packageDeliveryTime = time.fromisoformat(myHash.search(packageID).DeliveryTime)
+        if packageID in packageTruck1_ids or packageID in packageTruck3_ids:
+            if userTimeInput < truck1and3DepartTime:
+                Package.updateStatus(myHash.search(packageID), "at hub")
+            else:
+                if packageDeliveryTime > userTimeInput:
+                    Package.updateStatus(myHash.search(packageID), "en route")
+                else:
+                    Package.updateStatus(myHash.search(packageID), "delivered")
+        else:
+            if userTimeInput < truck2DepartTime:
+                Package.updateStatus(myHash.search(packageID), "at hub")
+            else:
+                if packageDeliveryTime > userTimeInput:
+                    Package.updateStatus(myHash.search(packageID), "en route")
+                else:
+                    Package.updateStatus(myHash.search(packageID), "delivered")
+
+        if myHash.search(packageID).Status != "delivered":
+            Package.updateDeliveryTime(myHash.search(packageID), "N/A")
+
+        print(myHash.search(packageID))
 #--------------------------------------- Menu ---------------------------------------
 
 def menu():
@@ -268,12 +387,12 @@ def menu():
     print("----------------------------------------------")
     print("Main Menu, please type an option 1, 2, 3, 4, or 5")
     print("----------------------------------------------")
-    print(Fore.GREEN + "1. Print All Package Status and Total Mileage")
+    print("1. Print All Package Status and Total Mileage")
     print("2. Get a Single Package Status with a Time")
     print("3. Get All Package Status Within a Start & End Time")
     print("4. View All 3 Trucks Status and Mileage")
-    print("5. Exit the Program" + Fore.RESET)
-    menuOptionSelect = input(Fore.GREEN + "Selection(1-5): " + Fore.RESET)
+    print("5. Exit the Program")
+    menuOptionSelect = input("Selection(1-5): ")
     if menuOptionSelect == "1":
         option1()
     elif menuOptionSelect == "2":
